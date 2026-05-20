@@ -1,0 +1,27 @@
+<view class="page-shell results-page">
+  <view class="card">
+    <view class="title">抽奖结果查询</view>
+    <view class="subtitle">这里会展示当前活动已经完成的抽奖记录，并支持导出 CSV。</view>
+    <button class="primary-btn" bindtap="exportResults">导出结果</button>
+  </view>
+
+  <view wx:if="{{records.length}}">
+    <view class="card draw-record" wx:for="{{records}}" wx:key="id">
+      <view class="record-head">
+        <view class="title small-title">{{item.title}}</view>
+        <view class="subtitle">抽奖人数：{{item.drawCount}}</view>
+      </view>
+      <view class="person-row" wx:for="{{item.winners}}" wx:key="id">
+        <image class="person-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+        <view>
+          <view class="person-name">{{item.nickname}}</view>
+          <view class="person-meta">第 {{item.prizeOrder}} 位</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="card">
+    <view class="subtitle">当前还没有已完成的抽奖结果。</view>
+  </view>
+</view>

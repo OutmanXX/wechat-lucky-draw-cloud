@@ -1,0 +1,33 @@
+<view class="page-shell register-page" style="{{backgroundStyle}}">
+  <view class="overlay">
+    <view class="card">
+      <view class="title">{{activity ? activity.name : '活动登记'}}</view>
+      <view class="subtitle">扫码进入后登记头像和昵称，即可参加抽奖。</view>
+
+      <view class="avatar-box">
+        <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image
+            wx:if="{{avatarUrl}}"
+            class="avatar-image"
+            src="{{avatarUrl}}"
+            mode="aspectFill"
+          />
+          <view wx:else class="avatar-placeholder">选择头像</view>
+        </button>
+      </view>
+
+      <label class="field">
+        <text class="field-label">昵称</text>
+        <input
+          class="input"
+          type="nickname"
+          placeholder="请输入微信昵称"
+          value="{{nickname}}"
+          bindinput="onNicknameInput"
+        />
+      </label>
+
+      <button class="primary-btn" loading="{{loading}}" bindtap="submitRegister">完成登记</button>
+    </view>
+  </view>
+</view>
