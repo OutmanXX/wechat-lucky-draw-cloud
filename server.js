@@ -31,6 +31,12 @@ const ready = ensureDefaultActivity();
 
 const server = http.createServer(async (req, res) => {
   try {
+    setCorsHeaders(res);
+    if (req.method === "OPTIONS") {
+      res.writeHead(204);
+      res.end();
+      return;
+    }
     await ready;
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);
     if (requestUrl.pathname.startsWith("/api/")) {
@@ -701,6 +707,12 @@ function createHttpError(statusCode, message, detail = "") {
   error.statusCode = statusCode;
   error.detail = detail;
   return error;
+}
+
+function setCorsHeaders(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-admin-token");
 }
 
 function respondJson(res, status, payload) {

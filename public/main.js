@@ -1,3 +1,6 @@
+const API_BASE = "https://express-914c-257494-7-1432860142.sh.run.tcloudbase.com";
+const ACTIVITY_ID = "demo-activity";
+
 const loginPanel = document.getElementById("login-panel");
 const adminPanel = document.getElementById("admin-panel");
 const loginBtn = document.getElementById("login-btn");
@@ -36,7 +39,7 @@ drawForm.addEventListener("submit", toggleDraw);
 
 if (adminToken) {
   showAdmin();
-  loadAll();
+  loadAll().catch(handleLoadError);
 } else {
   showLogin();
 }
@@ -62,6 +65,7 @@ async function login() {
       headers: { "Content-Type": "application/json" },
       skipAuth: true,
     });
+
     adminToken = result.token;
     localStorage.setItem("admin_token", adminToken);
     loginMessage.textContent = "";
@@ -85,16 +89,17 @@ async function loadAll() {
 }
 
 async function loadOverview() {
-  const activityId = document.getElementById("activity-id").value || "demo-activity";
-  const result = await apiRequest(`/api/admin/overview?activityId=${encodeURIComponent(activityId)}`);
+  const result = await apiRequest(`/api/admin/overview?activityId=${encodeURIComponent(ACTIVITY_ID)}`);
 
   document.body.style.backgroundImage = result.activity.registerBgUrl
-    ? `linear-gradient(135deg, rgba(251,244,236,0.9), rgba(236,246,239,0.9)), url("${result.activity.registerBgUrl}")`
+    ? `linear-gradient(135deg, rgba(251,244,236,0.92), rgba(236,246,239,0.92)), url("${result.activity.registerBgUrl}")`
     : "";
+
+  document.getElementById("activity-id").value = ACTIVITY_ID;
   document.getElementById("activity-name").value = result.activity.name;
   document.getElementById("register-bg-url").value = result.activity.registerBgUrl;
   document.getElementById("draw-title").value = result.activity.drawTitle;
-  exportLink.href = `/api/results/export?activityId=${encodeURIComponent(activityId)}`;
+  exportLink.href = `${API_BASE}/api/results/export?activityId=${encodeURIComponent(ACTIVITY_ID)}`;
 
   renderPrizeConfigs(result.activity.prizeConfigs || []);
   renderStats(result.stats);
@@ -148,8 +153,9 @@ function appendPrizeConfig(config = {}) {
 
 async function saveActivity(event) {
   event.preventDefault();
+
   const payload = {
-    activityId: document.getElementById("activity-id").value,
+    activityId: ACTIVITY_ID,
     name: document.getElementById("activity-name").value.trim(),
     registerBgUrl: document.getElementById("register-bg-url").value.trim(),
     drawTitle: document.getElementById("draw-title").value.trim(),
@@ -174,28 +180,31 @@ async function saveActivity(event) {
 }
 
 async function resetActivity() {
-  if (!window.confirm("确认初始化清空所有登记、奖项和中奖记录吗？")) return;
+  if (!window.confirm("确认清空登记、奖项记录和中奖结果，并恢复默认配置吗？")) {
+    return;
+  }
 
-  await apiRequest("/api/admin/reset", {
-    method: "POST",
-    body: JSON.stringify({
-      activityId: document.getElementById("activity-id").value || "demo-activity",
-    }),
-    headers: { "Content-Type": "application/json" },
-  });
+  try {
+    await apiRequest("/api/admin/reset", {
+      method: "POST",
+      body: JSON.stringify({ activityId: ACTIVITY_ID }),
+      headers: { "Content-Type": "application/json" },
+    });
 
-  activeDrawRecordId = "";
-  rolling = false;
-  stopRollingAnimation();
-  drawWinners.innerHTML = "";
-  activityMessage.textContent = "已初始化清空";
-  await loadAll();
+    activeDrawRecordId = "";
+    rolling = false;
+    stopRollingAnimation();
+    drawWinners.innerHTML = "";
+    activityMessage.textContent = "已完成初始化清空";
+    await loadAll();
+  } catch (error) {
+    activityMessage.textContent = error.error || "清空失败";
+  }
 }
 
 async function loadCandidates() {
-  const activityId = document.getElementById("activity-id").value || "demo-activity";
   const result = await apiRequest(
-    `/api/admin/draw/candidates?activityId=${encodeURIComponent(activityId)}`,
+    `/api/admin/draw/candidates?activityId=${encodeURIComponent(ACTIVITY_ID)}`,
   );
   cachedCandidates = result.candidates || [];
   renderCandidateCards(cachedCandidates);
@@ -231,7 +240,6 @@ async function toggleDraw(event) {
 async function startDraw() {
   const prizeName = document.getElementById("draw-prize-name").value.trim();
   const drawCount = Number(document.getElementById("draw-count").value || 1);
-  const activityId = document.getElementById("activity-id").value || "demo-activity";
 
   if (!prizeName) {
     alert("请先填写奖项名称");
@@ -240,7 +248,7 @@ async function startDraw() {
 
   const result = await apiRequest("/api/admin/draw/start", {
     method: "POST",
-    body: JSON.stringify({ activityId, prizeName, drawCount }),
+    body: JSON.stringify({ activityId: ACTIVITY_ID, prizeName, drawCount }),
     headers: { "Content-Type": "application/json" },
   });
 
@@ -252,7 +260,9 @@ async function startDraw() {
 }
 
 async function stopDraw() {
-  if (!activeDrawRecordId) return;
+  if (!activeDrawRecordId) {
+    return;
+  }
 
   const result = await apiRequest("/api/admin/draw/stop", {
     method: "POST",
@@ -265,7 +275,6 @@ async function stopDraw() {
   stopRollingAnimation();
   renderWinnerCards(result.drawRecord.title, result.winners);
   await loadAll();
-  await loadResults();
 }
 
 function startRollingAnimation(drawCount) {
@@ -302,8 +311,8 @@ function renderWinnerCards(title, winners) {
 }
 
 async function loadResults() {
-  const activityId = document.getElementById("activity-id").value || "demo-activity";
-  const result = await apiRequest(`/api/admin/results?activityId=${encodeURIComponent(activityId)}`);
+  const result = await apiRequest(`/api/admin/results?activityId=${encodeURIComponent(ACTIVITY_ID)}`);
+
   resultsList.innerHTML = result.grouped.length
     ? result.grouped
         .map(
@@ -347,11 +356,12 @@ async function apiRequest(url, options = {}) {
   const headers = {
     ...(options.headers || {}),
   };
+
   if (!options.skipAuth && adminToken) {
     headers["x-admin-token"] = adminToken;
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(`${API_BASE}${url}`, {
     ...options,
     headers,
   });
@@ -361,6 +371,11 @@ async function apiRequest(url, options = {}) {
     throw data;
   }
   return data;
+}
+
+function handleLoadError(error) {
+  console.error(error);
+  activityMessage.textContent = error.error || "数据加载失败";
 }
 
 function escapeHtml(value) {
