@@ -1,0 +1,12 @@
+{
+  "name": "wechat-lucky-draw-cloud",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.10.0"
+  }
+}

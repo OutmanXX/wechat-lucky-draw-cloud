@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>抽奖管理后台</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section id="login-panel" class="panel login-panel">
+        <p class="eyebrow">Admin Login</p>
+        <h1>抽奖后台登录</h1>
+        <div class="grid-form">
+          <label>
+            <span>用户名</span>
+            <input id="login-username" value="admin" />
+          </label>
+          <label>
+            <span>密码</span>
+            <input id="login-password" type="password" placeholder="请输入管理员密码" />
+          </label>
+          <button id="login-btn" class="primary-btn" type="button">登录</button>
+          <p id="login-message" class="message"></p>
+        </div>
+      </section>
+
+      <section id="admin-panel" class="hidden">
+        <div class="panel topbar">
+          <div>
+            <p class="eyebrow">Lucky Draw Admin</p>
+            <h1>抽奖管理后台</h1>
+          </div>
+          <div class="toolbar">
+            <button id="logout-btn" class="ghost-btn" type="button">退出登录</button>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="manage" type="button">管理页面</button>
+          <button class="tab-btn" data-tab="participants" type="button">登记名单</button>
+          <button class="tab-btn" data-tab="draw" type="button">抽奖页面</button>
+          <button class="tab-btn" data-tab="results" type="button">中奖记录</button>
+        </div>
+
+        <section id="tab-manage" class="panel tab-panel active">
+          <h2>管理页面</h2>
+          <form id="activity-form" class="grid-form">
+            <input id="activity-id" type="hidden" value="demo-activity" />
+            <label>
+              <span>活动名称</span>
+              <input id="activity-name" />
+            </label>
+            <label>
+              <span>默认背景图 URL</span>
+              <input id="register-bg-url" placeholder="所有页面默认背景图" />
+            </label>
+            <label>
+              <span>默认抽奖标题</span>
+              <input id="draw-title" />
+            </label>
+            <div id="prize-configs" class="prize-configs"></div>
+            <button id="add-prize-btn" class="ghost-btn" type="button">新增奖项</button>
+            <button class="primary-btn" type="submit">保存管理设置</button>
+          </form>
+          <div class="toolbar">
+            <button id="reset-btn" class="danger-btn" type="button">初始化清空记录</button>
+          </div>
+          <p id="activity-message" class="message"></p>
+        </section>
+
+        <section id="tab-participants" class="panel tab-panel">
+          <h2>登记名单</h2>
+          <div id="stats" class="stats"></div>
+          <div id="participants" class="cards"></div>
+        </section>
+
+        <section id="tab-draw" class="panel tab-panel">
+          <h2>抽奖页面</h2>
+          <form id="draw-form" class="grid-form">
+            <label>
+              <span>奖项名称</span>
+              <input id="draw-prize-name" placeholder="例如：一等奖" />
+            </label>
+            <label>
+              <span>中奖人数</span>
+              <input id="draw-count" type="number" min="1" value="1" />
+            </label>
+            <button id="draw-toggle-btn" class="primary-btn" type="submit">开始抽奖</button>
+          </form>
+          <div id="draw-candidates" class="cards"></div>
+          <div id="draw-winners" class="cards"></div>
+        </section>
+
+        <section id="tab-results" class="panel tab-panel">
+          <div class="toolbar">
+            <h2>中奖记录</h2>
+            <a id="export-link" class="ghost-btn" href="#" target="_blank" rel="noreferrer">导出 CSV</a>
+          </div>
+          <div id="results-list" class="cards"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/main.js"></script>
+  </body>
+</html>

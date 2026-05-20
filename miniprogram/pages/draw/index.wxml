@@ -1,0 +1,33 @@
+<view class="page-shell draw-page">
+  <view class="card">
+    <view class="title">抽奖控制台</view>
+    <view class="subtitle">只有管理员登录后才能看到这个页面并执行抽奖。</view>
+
+    <label class="field">
+      <text class="field-label">抽奖标题</text>
+      <input class="input" value="{{title}}" bindinput="onTitleInput" />
+    </label>
+
+    <label class="field">
+      <text class="field-label">抽奖人数</text>
+      <input class="input" type="number" value="{{drawCount}}" bindinput="onCountInput" />
+    </label>
+
+    <button class="primary-btn" bindtap="toggleDraw">{{rolling ? '停止' : '开始'}}</button>
+    <button class="secondary-btn" bindtap="loadCandidates">刷新候选人</button>
+  </view>
+
+  <view class="card list-card">
+    <view class="title small-title">{{rolling ? '滚动中名单' : '当前/最终名单'}}</view>
+    <view wx:if="{{rollingDisplay.length}}">
+      <view class="person-row" wx:for="{{rollingDisplay}}" wx:key="id">
+        <image class="person-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+        <view>
+          <view class="person-name">{{item.nickname}}</view>
+          <view class="person-meta">{{item.openid}}</view>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="subtitle">还没有可以显示的候选人。</view>
+  </view>
+</view>
